@@ -1,0 +1,34 @@
+type User @model {
+  id: ID!
+  email: String
+  password: String
+  profile: Profile @connection
+  answers: [Answer] @connection(keyName: "byUser", fields: ["id"])
+}
+
+type Profile @model {
+  id: ID!
+  firstName: String
+  lastName: String
+  birthday: String
+  gender: String
+  interestedIn: String
+}
+
+type Option @model {
+  id: ID!
+  label: String
+}
+
+type Question @model {
+  id: ID!
+  option1: Option @connection
+  option2: Option @connection
+}
+
+type Answer @model @key(name: "byUser", fields: ["userID"]){
+  id: ID!
+  userID: ID!
+  question: Question @connection
+  option: Option @connection
+}
