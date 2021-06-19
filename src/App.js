@@ -7,12 +7,12 @@ import awsExports from "./aws-exports";
 import {listQuestions} from "./graphql/queries";
 import {createOption, createQuestion} from "./graphql/mutations";
 import {Box, Button, Container, TextField} from "@material-ui/core";
-import { DataGrid } from '@material-ui/data-grid';
+import {DataGrid} from '@material-ui/data-grid';
 
 Amplify.configure(awsExports);
 
 const columns = [
-  { field: 'id', headerName: 'Question id', width: 500 },
+  {field: 'id', headerName: 'Question id', width: 500},
   {
     field: 'option1',
     headerName: 'option1',
@@ -31,7 +31,7 @@ const columns = [
       return params.row.option2.label;
     }
   },
-  { field: 'createdAt', headerName: 'Created At', width: 200 },
+  {field: 'createdAt', headerName: 'Created At', width: 200},
 ]
 
 const App = () => {
@@ -39,14 +39,14 @@ const App = () => {
   const [questions, setQuestions] = useState([]);
 
   const fetchQuestions = useCallback(async () => {
-      console.log('fetchQuestions');
-      try {
-        const questionsData = await API.graphql(graphqlOperation(listQuestions));
-        setQuestions(questionsData.data.listQuestions.items);
-      } catch (err) {
-        console.log('error fetching questions')
-      }
-    }, []);
+    console.log('fetchQuestions');
+    try {
+      const questionsData = await API.graphql(graphqlOperation(listQuestions));
+      setQuestions(questionsData.data.listQuestions.items);
+    } catch (err) {
+      console.log('error fetching questions')
+    }
+  }, []);
 
   useEffect(() => {
     console.log('useEffect')
@@ -85,7 +85,7 @@ const App = () => {
       const newQuestion = resultQuestion.data.createQuestion;
 
       setQuestions(oldArrayQuestion => [...oldArrayQuestion, newQuestion]);
-
+      setFormState({option1: '', option2: ''});
     } catch (err) {
       console.log('error creating question', err);
     }
@@ -108,15 +108,15 @@ const App = () => {
           label="Option 2"
           required
           variant="outlined"
-          style={{ marginLeft: 8, marginRight: 8 }}
+          style={{marginLeft: 8, marginRight: 8}}
         />
         <Button onClick={addQuestion} variant="contained" color="primary" size="large">Add a new Question</Button>
       </Box>
-      <Box style={{ height: 400, width: '100%' }}>
+      <Box style={{height: 400, width: '100%'}}>
         <DataGrid
           rows={questions}
           columns={columns}
-          pageSize={200}
+          pageSize={100}
           rowHeight={25}
         />
       </Box>
