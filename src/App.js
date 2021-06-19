@@ -1,36 +1,62 @@
-import React, { useEffect, useState } from 'react';
-import Amplify, { API, graphqlOperation } from 'aws-amplify';
+import React, {useCallback, useEffect, useState} from 'react';
+import Amplify, {API, graphqlOperation} from 'aws-amplify';
 
 import './App.css';
 
 import awsExports from "./aws-exports";
 import {listQuestions} from "./graphql/queries";
 import {createOption, createQuestion} from "./graphql/mutations";
+import {Box, Button, Container, TextField} from "@material-ui/core";
+import { DataGrid } from '@material-ui/data-grid';
+
 Amplify.configure(awsExports);
+
+const columns = [
+  { field: 'id', headerName: 'Question id', width: 500 },
+  {
+    field: 'option1',
+    headerName: 'option1',
+    width: 150,
+    valueGetter: (params) => {
+      // console.log(params.row.option1.label);
+      return params.row.option1.label;
+    }
+  },
+  {
+    field: 'option2',
+    headerName: 'option2',
+    width: 150,
+    valueGetter: (params) => {
+      // console.log(params.row.option2.label);
+      return params.row.option2.label;
+    }
+  },
+  { field: 'createdAt', headerName: 'Created At', width: 200 },
+]
 
 const App = () => {
   const [formState, setFormState] = useState({option1: '', option2: ''});
   const [questions, setQuestions] = useState([]);
 
+  const fetchQuestions = useCallback(async () => {
+      console.log('fetchQuestions');
+      try {
+        const questionsData = await API.graphql(graphqlOperation(listQuestions));
+        setQuestions(questionsData.data.listQuestions.items);
+      } catch (err) {
+        console.log('error fetching questions')
+      }
+    }, []);
+
   useEffect(() => {
     console.log('useEffect')
-    return () => {
-      fetchQuestions().then(r => console.log('useEffect r', r));
-    };
-  }, []);
+    fetchQuestions().then(r => console.log('useEffect r', r));
+  }, [fetchQuestions]);
 
   const setInput = (key, value) => {
     setFormState({...formState, [key]: value});
   };
 
-  async function fetchQuestions() {
-    console.log('fetchQuestions');
-    try {
-      const questionsData = await API.graphql(graphqlOperation(listQuestions));
-      console.log(questionsData);
-      setQuestions(questionsData.data.listQuestions.items);
-    } catch (err) { console.log('error fetching questions') }
-  }
 
   const addQuestion = async () => {
     console.log(formState);
@@ -66,33 +92,35 @@ const App = () => {
   }
 
   return (
-    <div className="App">
+    <Container>
       <h2>Question Editor</h2>
-      <div>
-        <input
+      <Box my={5} display="flex" alignItems="center" justifyContent="center">
+        <TextField
           onChange={event => setInput('option1', event.target.value)}
           value={formState.option1}
-          placeholder="Option 1"
+          label="Option 1"
+          required
+          variant="outlined"
         />
-        <input
+        <TextField
           onChange={event => setInput('option2', event.target.value)}
           value={formState.option2}
-          placeholder="Option 2"
+          label="Option 2"
+          required
+          variant="outlined"
+          style={{ marginLeft: 8, marginRight: 8 }}
         />
-        <button onClick={addQuestion}>Add a new Question</button>
-      </div>
-      <div>
-        {
-          questions.map((question, index) => (
-            <div key={question.id ? question.id : index}>
-              <p>{question.id}</p>
-              <p>{question.option1.label}</p>
-              <p>{question.option2.label}</p>
-            </div>
-          ))
-        }
-      </div>
-    </div>
+        <Button onClick={addQuestion} variant="contained" color="primary" size="large">Add a new Question</Button>
+      </Box>
+      <Box style={{ height: 400, width: '100%' }}>
+        <DataGrid
+          rows={questions}
+          columns={columns}
+          pageSize={200}
+          rowHeight={25}
+        />
+      </Box>
+    </Container>
   );
 }
 
