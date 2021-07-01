@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Amplify, {API, graphqlOperation} from 'aws-amplify';
 
 import './App.css';
@@ -8,6 +8,8 @@ import {listQuestions} from "./graphql/queries";
 import {createOption, createQuestion} from "./graphql/mutations";
 import {Box, Button, Container, TextField} from "@material-ui/core";
 import {DataGrid} from '@material-ui/data-grid';
+import CircularProgress from '@material-ui/core/CircularProgress';
+
 
 Amplify.configure(awsExports);
 
@@ -37,21 +39,28 @@ const columns = [
 const App = () => {
   const [formState, setFormState] = useState({option1: '', option2: ''});
   const [questions, setQuestions] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const fetchQuestions = useCallback(async () => {
-    console.log('fetchQuestions');
-    try {
-      const questionsData = await API.graphql(graphqlOperation(listQuestions));
-      setQuestions(questionsData.data.listQuestions.items);
-    } catch (err) {
-      console.log('error fetching questions')
-    }
-  }, []);
 
   useEffect(() => {
-    console.log('useEffect')
-    fetchQuestions().then(r => console.log('useEffect r', r));
-  }, [fetchQuestions]);
+    const fetchQuestions = async () => {
+      console.log('fetchQuestions');
+      setIsLoading(true);
+      try {
+        const questionsData = await API.graphql(graphqlOperation(listQuestions));
+        setQuestions(questionsData.data.listQuestions.items);
+        return questionsData.data.listQuestions.items;
+      } catch (err) {
+        console.log('error fetching questions')
+      }
+    };
+
+    console.log('useEffect');
+    fetchQuestions().then(r => {
+      setIsLoading(false);
+      console.log('useEffect r', r)
+    });
+  }, []);
 
   const setInput = (key, value) => {
     setFormState({...formState, [key]: value});
@@ -112,13 +121,15 @@ const App = () => {
         />
         <Button onClick={addQuestion} variant="contained" color="primary" size="large">Add a new Question</Button>
       </Box>
-      <Box style={{height: 400, width: '100%'}}>
-        <DataGrid
-          rows={questions}
-          columns={columns}
-          pageSize={100}
-          rowHeight={25}
-        />
+      <Box style={{height: 400, width: '100%'}} alignItems="center" justifyContent="center" display="flex">
+        {isLoading ? <CircularProgress/> : (
+          <DataGrid
+            rows={questions}
+            columns={columns}
+            pageSize={100}
+            rowHeight={25}
+          />
+        )}
       </Box>
     </Container>
   );
