@@ -103,7 +103,7 @@ const App = () => {
 
   return (
     <Container>
-      <h2>Question Editor</h2>
+      <h2>Mind First - Question Editor</h2>
       <Box my={5} display="flex" alignItems="center" justifyContent="center">
         <TextField
           onChange={event => setInput('option1', event.target.value)}
