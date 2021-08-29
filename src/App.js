@@ -63,7 +63,8 @@ const App = () => {
   }, []);
 
   const setInput = (key, value) => {
-    setFormState({...formState, [key]: value});
+    const capitaliseFirstLetterString = (value && value[0].toUpperCase() + value.slice(1)) || "";
+    setFormState({...formState, [key]: capitaliseFirstLetterString});
   };
 
 
