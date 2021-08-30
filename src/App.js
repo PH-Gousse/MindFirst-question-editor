@@ -4,11 +4,11 @@ import Amplify, {API, graphqlOperation} from 'aws-amplify';
 import './App.css';
 
 import awsExports from "./aws-exports";
-import {listQuestions} from "./graphql/queries";
 import {createOption, createQuestion} from "./graphql/mutations";
 import {Box, Button, Container, TextField} from "@material-ui/core";
 import {DataGrid} from '@material-ui/data-grid';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import {getAllQuestions} from "./actions/requests/QuestionRequests";
 
 
 Amplify.configure(awsExports);
@@ -47,11 +47,11 @@ const App = () => {
       console.log('fetchQuestions');
       setIsLoading(true);
       try {
-        const questionsData = await API.graphql(graphqlOperation(listQuestions));
-        setQuestions(questionsData.data.listQuestions.items);
-        return questionsData.data.listQuestions.items;
+        const items = await getAllQuestions();
+        setQuestions(items);
+        return items;
       } catch (err) {
-        console.log('error fetching questions')
+        console.error('error fetching questions', err);
       }
     };
 
