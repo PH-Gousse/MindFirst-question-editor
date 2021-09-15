@@ -1,14 +1,15 @@
 import React, {useEffect, useState} from 'react';
-import Amplify, {API, graphqlOperation} from 'aws-amplify';
+import Amplify from 'aws-amplify';
 
 import './App.css';
 
 import awsExports from "./aws-exports";
-import {createOption, createQuestion} from "./graphql/mutations";
 import {Box, Button, Container, TextField} from "@material-ui/core";
 import {DataGrid} from '@material-ui/data-grid';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import {getAllQuestions} from "./actions/requests/QuestionRequests";
+import {getAllQuestions} from "./actions/question/QuestionQueries";
+import {saveOptions} from "./actions/option/OptionMutations";
+import {saveQuestion} from "./actions/question/QuestionMutations";
 
 
 Amplify.configure(awsExports);
@@ -44,7 +45,7 @@ const App = () => {
 
   useEffect(() => {
     const fetchQuestions = async () => {
-      console.log('fetchQuestions');
+      // console.log('fetchQuestions');
       setIsLoading(true);
       try {
         const items = await getAllQuestions();
@@ -55,10 +56,10 @@ const App = () => {
       }
     };
 
-    console.log('useEffect');
+    // console.log('useEffect');
     fetchQuestions().then(r => {
       setIsLoading(false);
-      console.log('useEffect r', r)
+      // console.log('useEffect r', r)
     });
   }, []);
 
@@ -69,30 +70,13 @@ const App = () => {
 
 
   const addQuestion = async () => {
-    console.log(formState);
+    // console.log(formState);
     try {
       if (!formState.option1 || !formState.option2) return;
 
-      const option1 = {
-        label: formState.option1
-      };
-      const option2 = {
-        label: formState.option2
-      };
+      const {option1Model, option2Model} = await saveOptions(formState.option1, formState.option2);
 
-      const resultOption1 = await API.graphql(graphqlOperation(createOption, {input: option1}));
-      const option1Id = resultOption1.data.createOption.id;
-
-      const resultOption2 = await API.graphql(graphqlOperation(createOption, {input: option2}));
-      const option2Id = resultOption2.data.createOption.id;
-
-      const question = {
-        questionOption1Id: option1Id,
-        questionOption2Id: option2Id
-      }
-
-      const resultQuestion = await API.graphql(graphqlOperation(createQuestion, {input: question}));
-      const newQuestion = resultQuestion.data.createQuestion;
+      const newQuestion = await saveQuestion(option1Model, option2Model);
 
       setQuestions(oldArrayQuestion => [...oldArrayQuestion, newQuestion]);
       setFormState({option1: '', option2: ''});

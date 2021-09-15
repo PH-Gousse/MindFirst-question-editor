@@ -2,7 +2,7 @@
   "providers": [
     "awscloudformation"
   ],
-  "projectName": "app",
+  "projectName": "gameNdate",
   "version": "3.1",
   "frontend": "javascript",
   "javascript": {
