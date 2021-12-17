@@ -15,11 +15,11 @@ import {saveQuestion} from "./actions/question/QuestionMutations";
 Amplify.configure(awsExports);
 
 const columns = [
-  {field: 'id', headerName: 'Question id', width: 500},
+  {field: 'id', headerName: 'Question id', width: 450},
   {
     field: 'option1',
     headerName: 'option1',
-    width: 150,
+    width: 200,
     valueGetter: (params) => {
       // console.log(params.row.option1.label);
       return params.row.option1.label;
@@ -28,13 +28,13 @@ const columns = [
   {
     field: 'option2',
     headerName: 'option2',
-    width: 150,
+    width: 200,
     valueGetter: (params) => {
       // console.log(params.row.option2.label);
       return params.row.option2.label;
     }
   },
-  {field: 'createdAt', headerName: 'Created At', width: 200},
+  {field: 'createdAt', headerName: 'Created At', width: 300},
 ]
 
 const App = () => {
@@ -74,9 +74,9 @@ const App = () => {
     try {
       if (!formState.option1 || !formState.option2) return;
 
-      const {option1Model, option2Model} = await saveOptions(formState.option1, formState.option2);
+      const {option1Id, option2Id} = await saveOptions(formState.option1, formState.option2);
 
-      const newQuestion = await saveQuestion(option1Model, option2Model);
+      const newQuestion = await saveQuestion(option1Id, option2Id);
 
       setQuestions(oldArrayQuestion => [...oldArrayQuestion, newQuestion]);
       setFormState({option1: '', option2: ''});
@@ -106,13 +106,13 @@ const App = () => {
         />
         <Button onClick={addQuestion} variant="contained" color="primary" size="large">Add a new Question</Button>
       </Box>
-      <Box style={{height: 400, width: '100%'}} alignItems="center" justifyContent="center" display="flex">
+      <Box style={{height: 500, width: '100%'}} alignItems="center" justifyContent="center" display="flex">
         {isLoading ? <CircularProgress/> : (
           <DataGrid
             rows={questions}
             columns={columns}
             pageSize={100}
-            rowHeight={25}
+            rowHeight={20}
           />
         )}
       </Box>

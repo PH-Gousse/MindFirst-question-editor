@@ -1,0 +1,112 @@
+type User @model
+@key(name: "byPhoneNumber", fields: ["phoneNumber", "id"], queryField: "userByPhoneNumber")
+{
+  id: ID!
+  phoneNumber: String!
+  email: String
+  isOnBoardingCompleted: Boolean
+  profile: Profile @connection
+  answers: [Answer] @connection(keyName: "byUser", fields: ["id"])
+  status: String
+  chatRoomUser: [ChatRoomUser] @connection(keyName: "byUser", fields: ["id"])
+}
+
+type Profile @model {
+  id: ID!
+  firstName: String
+  lastName: String
+  birthday: String
+  gender: String
+  interestedIn: String
+  shortDescription: String
+  photos: [Photo] @connection(keyName: "byProfile", fields: ["id"])
+  ageRange: [Int]
+  location: String
+}
+
+type Photo @model
+@key(name: "byProfile", fields: ["profileID", "key"])
+{
+  id: ID!
+  profileID: ID!
+  key: String!
+  position: Int!
+}
+
+type Option @model {
+  id: ID!
+  label: String!
+}
+
+type Question @model {
+  id: ID!
+  option1: Option! @connection
+  option2: Option! @connection
+}
+
+type Answer @model @key(name: "byUser", fields: ["userID"]){
+  id: ID!
+  userID: ID!
+  question: Question! @connection
+  option: Option! @connection
+}
+
+type Query {
+  getRankByUser(userId: ID): [Rank] @function(name: "ResolverRankFunction-${env}")
+}
+
+type Rank
+{
+  userId: ID!
+  percentage: Int
+  profile: Profile
+  answerWithSameQuestions: [AnswerWithSameQuestions]
+}
+
+type AnswerWithSameQuestions
+{
+  questionId: ID!
+  option1: String!
+  option2: String!
+  optionCurrentUser: String!
+  optionUser: String!
+}
+
+type ChatRoomUser @model
+@key(name: "byUser", fields: ["userId", "chatRoomId"])
+@key(name: "byChatRoom", fields: ["chatRoomId", "userId"])
+{
+  id: ID!
+  userId: ID!
+  chatRoomId: ID!
+  user: User @connection(fields: ["userId"])
+  chatRoom: ChatRoom @connection(fields: ["chatRoomId"])
+}
+
+type ChatRoom @model {
+  id: ID!
+  chatRoomUsers: [ChatRoomUser] @connection(keyName: "byChatRoom", fields: ["id"])
+  messages: [Message] @connection(keyName: "byChatRoom", fields: ["id"])
+  lastMessageContent: String
+  lastMessageUserId: ID
+}
+
+type Message @model
+@key(
+  name: "byChatRoom",
+  fields: ["chatRoomId", "createdAt"],
+  queryField: "messagesByChatRoom")
+{
+  id: ID!
+  content: String!
+  userId: ID!
+  chatRoomId: ID!
+  user: User @connection(fields: ["userId"])
+  chatRoom: ChatRoom @connection(fields: ["chatRoomId"])
+  createdAt: String!
+}
+
+type Subscription {
+  onCreateChatRoomUserByUserId(userId: ID!): ChatRoomUser
+    @aws_subscribe(mutations: ["createChatRoomUser"])
+}

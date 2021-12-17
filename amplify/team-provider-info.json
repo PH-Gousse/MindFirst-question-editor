@@ -10,6 +10,33 @@
       "StackName": "amplify-gamendate-dev-184524",
       "StackId": "arn:aws:cloudformation:eu-west-1:001998877078:stack/amplify-gamendate-dev-184524/a016a960-d838-11eb-946d-0a148ec09a8f",
       "AmplifyAppId": "d3kevwjf18f81v"
+    },
+    "categories": {
+      "function": {
+        "ResolverRankFunction": {
+          "deploymentBucketName": "amplify-gamendate-dev-184524-deployment",
+          "s3Key": "amplify-builds/ResolverRankFunction-706934775a314266784a-build.zip"
+        },
+        "CreateAuthChallenge": {
+          "deploymentBucketName": "amplify-gamendate-dev-184524-deployment",
+          "s3Key": "amplify-builds/CreateAuthChallenge-532b4e646e7a2b532b79-build.zip"
+        },
+        "DefineAuthChallenge": {
+          "deploymentBucketName": "amplify-gamendate-dev-184524-deployment",
+          "s3Key": "amplify-builds/DefineAuthChallenge-733534596a3539574c4a-build.zip"
+        },
+        "PreSignUp": {
+          "deploymentBucketName": "amplify-gamendate-dev-184524-deployment",
+          "s3Key": "amplify-builds/PreSignUp-6243366f715155445359-build.zip"
+        },
+        "VerifyAuthChallenge": {
+          "deploymentBucketName": "amplify-gamendate-dev-184524-deployment",
+          "s3Key": "amplify-builds/VerifyAuthChallenge-6f766d684e37574a3737-build.zip"
+        }
+      },
+      "auth": {
+        "gamendateAuth": {}
+      }
     }
   }
 }

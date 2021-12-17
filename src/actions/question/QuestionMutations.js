@@ -1,13 +1,13 @@
-import {Question} from "../../models";
-import {DataStore} from "aws-amplify";
+import {API, graphqlOperation} from "aws-amplify";
+import {createQuestion} from "../../graphql/mutations";
 
-export const saveQuestion = async (option1Model, option2Model) => {
-  const question = new Question({
-    option1: option1Model,
-    option2: option2Model
-  });
+export const saveQuestion = async (option1Id, option2Id) => {
+  const question = {
+    questionOption1Id: option1Id,
+    questionOption2Id: option2Id
+  }
 
-  const questionModel = await DataStore.save(question);
+  const resultQuestion = await API.graphql(graphqlOperation(createQuestion, {input: question}));
 
-  return questionModel;
+  return resultQuestion.data.createQuestion;
 };

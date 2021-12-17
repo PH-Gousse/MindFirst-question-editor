@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "serviceConfiguration": {
+    "serviceName": "AppSync",
+    "defaultAuthType": {
+      "mode": "API_KEY",
+      "expirationTime": 365,
+      "keyDescription": "Amplify user api key"
+    },
+    "conflictResolution": {},
+    "apiName": "MindFirstAPI",
+    "gqlSchemaPath": "/Users/ph/Documents/react_app/app/amplify/backend/api/MindFirstAPI/schema.graphql"
+  }
+}
