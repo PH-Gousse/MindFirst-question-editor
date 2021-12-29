@@ -4,12 +4,14 @@ import Amplify from 'aws-amplify';
 import './App.css';
 
 import awsExports from "./aws-exports";
-import {Box, Button, Container, TextField} from "@material-ui/core";
+import {Box, Button, Container, Input, TextField} from "@material-ui/core";
 import {DataGrid} from '@material-ui/data-grid';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import {getAllQuestions} from "./actions/question/QuestionQueries";
 import {saveOptions} from "./actions/option/OptionMutations";
 import {saveQuestion} from "./actions/question/QuestionMutations";
+import csvToArray from "./helper/csvToArray";
+import {AddBulkQuestions} from "./actions/question/AddBulkQuestions";
 
 
 Amplify.configure(awsExports);
@@ -42,20 +44,21 @@ const App = () => {
   const [questions, setQuestions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  const fetchQuestions = async () => {
+    // console.log('fetchQuestions');
+    setIsLoading(true);
+    try {
+      const items = await getAllQuestions();
+      setQuestions(items);
+      return items;
+    } catch (err) {
+      console.error('error fetching questions', err);
+    }
+  };
 
   useEffect(() => {
-    const fetchQuestions = async () => {
-      // console.log('fetchQuestions');
-      setIsLoading(true);
-      try {
-        const items = await getAllQuestions();
-        setQuestions(items);
-        return items;
-      } catch (err) {
-        console.error('error fetching questions', err);
-      }
-    };
-
     // console.log('useEffect');
     fetchQuestions().then(r => {
       setIsLoading(false);
@@ -85,6 +88,27 @@ const App = () => {
     }
   }
 
+  const onFileChange = event => {
+    event.preventDefault()
+    setSelectedFile(event.target.files[0])
+  };
+
+  const onFileUpload = async (event) => {
+    event.preventDefault()
+    if (selectedFile) {
+      const reader = new FileReader()
+      reader.onload = async (e) => {
+        const text = (e.target.result)
+        console.log(text)
+        const data = csvToArray(text)
+        await AddBulkQuestions(data, questions)
+        await fetchQuestions()
+        setIsLoading(false);
+      };
+      reader.readAsText(selectedFile)
+    }
+  }
+
   return (
     <Container>
       <h2>Mind First - Question Editor</h2>
@@ -104,7 +128,13 @@ const App = () => {
           variant="outlined"
           style={{marginLeft: 8, marginRight: 8}}
         />
-        <Button onClick={addQuestion} variant="contained" color="primary" size="large">Add a new Question</Button>
+        <Button onClick={addQuestion} variant="contained" color="primary" size="large" style={{marginRight: 8}}>Add a new Question</Button>
+        <label htmlFor="contained-button-file">
+          <Input accept=".csv" id="contained-button-file" type="file" onChange={onFileChange} />
+          <Button variant="contained" component="span" style={{marginLeft: 8}} onClick={onFileUpload}>
+            Or Upload a CSV
+          </Button>
+        </label>
       </Box>
       <Box style={{height: 500, width: '100%'}} alignItems="center" justifyContent="center" display="flex">
         {isLoading ? <CircularProgress/> : (

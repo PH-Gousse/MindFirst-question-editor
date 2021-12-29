@@ -2,8 +2,14 @@ import {API, graphqlOperation} from "aws-amplify";
 import {listQuestions} from "../../graphql/queries";
 
 export const getAllQuestions = async () => {
-  const questions = await API.graphql(graphqlOperation(listQuestions));
-  // console.log('questions', questions);
+  let items = [];
+  let nextToken = null;
 
-  return questions.data.listQuestions.items;
+  do {
+    const {data: {listQuestions: {items: nextItems, nextToken: nextNextToken}}} = await API.graphql(graphqlOperation(listQuestions, {nextToken}))
+    items = items.concat(nextItems)
+    nextToken = nextNextToken
+  } while (nextToken)
+
+  return items;
 }
